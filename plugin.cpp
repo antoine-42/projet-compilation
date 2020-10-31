@@ -34,16 +34,6 @@ void display_monitored_mpi_functions(){
         printf(".\n");
     }
 }
-void pragma_set_functions_handle_running_errors(tree x, bool close_paren_needed){
-    enum cpp_ttype token;
-    if(! close_paren_needed){
-        token = pragma_lex (&x);
-        if(token != CPP_EOF){
-            printf("Error: `#pragma ProjetCA mpicoll_check string` has extra stuff after the function\n");
-        }
-        break;
-    }
-}
 void pragma_set_functions_handle_ending_errors(tree x, bool close_paren_needed){
     enum cpp_ttype token;
     // Check that there is a closing parenthesis
@@ -97,11 +87,17 @@ static void handle_pragma_set_functions(cpp_reader *ARG_UNUSED(dummy)){
             else{
                 printf("Warning: %s is not an MPI function.\n", op);
             }
-            pragma_set_functions_handle_running_errors(x, close_paren_needed)
+            if(! close_paren_needed){
+                token = pragma_lex (&x);
+                if(token != CPP_EOF){
+                    printf("Error: `#pragma ProjetCA mpicoll_check string` has extra stuff after the function\n");
+                }
+                break;
+            }
         }
         token = pragma_lex (&x);
     }
-    pragma_set_functions_handle_ending_errors(x, close_paren_needed)
+    pragma_set_functions_handle_ending_errors(x, close_paren_needed);
 }
 
 

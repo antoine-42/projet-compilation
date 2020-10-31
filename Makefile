@@ -23,7 +23,7 @@ test: $(EXEC)
 	$(GCC) $(CFLAGS)  -fplugin=./plugin.so ./test2.c
 
 clean:
-	rm -rf $(EXE) *.o *.so
+	rm -rf $(EXE) *.o *.so *.out
 
 clean_all: clean
 	rm -rf libplugin*.so *.dot
