@@ -12,6 +12,7 @@
 #include <bitmap.h>
 #include <c-family/c-pragma.h>
 #include <stdexcept>
+#include <errors.h>
 
 int plugin_is_GPL_compatible;
 

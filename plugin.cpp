@@ -34,8 +34,7 @@ void display_monitored_mpi_functions(){
         printf(".\n");
     }
 }
-void pragma_set_functions_handle_ending_errors(tree x, bool close_paren_needed){
-    enum cpp_ttype token;
+void pragma_set_functions_handle_ending_errors(tree x, enum cpp_ttype token, bool close_paren_needed){
     // Check that there is a closing parenthesis
     if (token == CPP_EOF && close_paren_needed){
         printf("Error: `#pragma ProjetCA mpicoll_check (string[, string]...)` is missing a closing parenthesis\n");
@@ -97,7 +96,7 @@ static void handle_pragma_set_functions(cpp_reader *ARG_UNUSED(dummy)){
         }
         token = pragma_lex (&x);
     }
-    pragma_set_functions_handle_ending_errors(x, close_paren_needed);
+    pragma_set_functions_handle_ending_errors(x, token, close_paren_needed);
 }
 
 
