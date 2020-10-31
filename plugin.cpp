@@ -19,45 +19,33 @@ int get_stmt_mpi_function(gimple * stmt){
 }
 
 
-/* Handle ProjetCA mpicoll_check pragma */
-static void handle_pragma_set_functions(cpp_reader *ARG_UNUSED(dummy)){
-    if (cfun)
+void display_monitored_mpi_functions(){
+    for ( int mpi_function = 0; mpi_function < LAST_AND_UNUSED_MPI_COLLECTIVE_CODE; ++mpi_function)
     {
-        throw std::logic_error( "#pragma instrument function is not allowed inside functions\n" );
-    }
+        printf("%s: ", mpi_collective_name[mpi_function]);
 
-    enum cpp_ttype token;
-    tree x;
-    bool close_paren_needed = false;
-    token = pragma_lex (&x);
-
-    if (token == CPP_OPEN_PAREN)
-    {
-        close_paren_needed = true;
-        token = pragma_lex (&x);
-    }
-
-    while (token != CPP_EOF && token != CPP_CLOSE_PAREN){
-        if (token == CPP_NAME){
-            const char *op = IDENTIFIER_POINTER(x);
-            if(get_str_mpi_function(op) != -1){
-                // todo: add to list
-                printf("added %s to analysed MPI functions.\n", op);
-            }
-            else{
-                printf("Warning: %s is not an MPI function.\n", op);
-            }
-            if(! close_paren_needed){
-                token = pragma_lex (&x);
-                if(token != CPP_EOF){
-                    printf("Error: `#pragma ProjetCA mpicoll_check string` has extra stuff after the function\n");
-                }
-                break;
-            }
+        if (MONITORED_MPI_COLLECTIVES[mpi_function]) {
+            printf("monitored");
+        }
+        else {
+            printf("not monitored");
         }
 
-        token = pragma_lex (&x);
+        printf(".\n");
     }
+}
+void pragma_set_functions_handle_running_errors(tree x, bool close_paren_needed){
+    enum cpp_ttype token;
+    if(! close_paren_needed){
+        token = pragma_lex (&x);
+        if(token != CPP_EOF){
+            printf("Error: `#pragma ProjetCA mpicoll_check string` has extra stuff after the function\n");
+        }
+        break;
+    }
+}
+void pragma_set_functions_handle_ending_errors(tree x, bool close_paren_needed){
+    enum cpp_ttype token;
     // Check that there is a closing parenthesis
     if (token == CPP_EOF && close_paren_needed){
         printf("Error: `#pragma ProjetCA mpicoll_check (string[, string]...)` is missing a closing parenthesis\n");
@@ -75,6 +63,40 @@ static void handle_pragma_set_functions(cpp_reader *ARG_UNUSED(dummy)){
             }
         }
     }
+}
+/* Handle ProjetCA mpicoll_check pragma */
+static void handle_pragma_set_functions(cpp_reader *ARG_UNUSED(dummy)){
+    if (cfun)
+    {
+        throw std::logic_error( "#pragma instrument function is not allowed inside functions\n" );
+    }
+
+    enum cpp_ttype token;
+    tree x;
+    bool close_paren_needed = false;
+    token = pragma_lex (&x);
+
+    if (token == CPP_OPEN_PAREN)
+    {
+        close_paren_needed = true;
+        token = pragma_lex (&x);
+    }
+    while (token != CPP_EOF && token != CPP_CLOSE_PAREN){
+        if (token == CPP_NAME){
+            const char *op = IDENTIFIER_POINTER(x);
+            int mpi_function_id = get_str_mpi_function(op);
+            if(mpi_function_id != -1){
+                MONITORED_MPI_COLLECTIVES[mpi_function_id] = 1;
+                printf("added %s to analysed MPI functions.\n", op);
+            }
+            else{
+                printf("Warning: %s is not an MPI function.\n", op);
+            }
+            pragma_set_functions_handle_running_errors(x, close_paren_needed)
+        }
+        token = pragma_lex (&x);
+    }
+    pragma_set_functions_handle_ending_errors(x, close_paren_needed)
 }
 
 

@@ -31,4 +31,7 @@ const char *const mpi_collective_name[] = {
 
 #undef DEFMPICOLLECTIVES
 
+// 0 if the MPI collective is not monitored, 1 if it is. Order is from the MPI collective enum.
+int MONITORED_MPI_COLLECTIVES[LAST_AND_UNUSED_MPI_COLLECTIVE_CODE] = {0};
+
 #endif //CODE_PLUGIN_H
