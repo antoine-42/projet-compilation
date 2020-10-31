@@ -86,8 +86,13 @@ static void handle_pragma_set_functions(cpp_reader *ARG_UNUSED(dummy)){
             const char *op = IDENTIFIER_POINTER(x);
             int mpi_function_id = get_str_mpi_function(op);
             if(mpi_function_id != -1){
-                MONITORED_MPI_COLLECTIVES[mpi_function_id] = 1;
-                printf("added %s to analysed MPI functions.\n", op);
+                if(MONITORED_MPI_COLLECTIVES[mpi_function_id]){
+                    printf("Warning: %s is already monitored.\n", op);
+                }
+                else{
+                    MONITORED_MPI_COLLECTIVES[mpi_function_id] = 1;
+                    printf("added %s to analysed MPI functions.\n", op);
+                }
             }
             else{
                 printf("Warning: %s is not an MPI function.\n", op);
