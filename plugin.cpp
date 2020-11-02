@@ -37,18 +37,18 @@ void display_monitored_mpi_functions(){
 void pragma_set_functions_handle_ending_errors(tree x, enum cpp_ttype token, bool close_paren_needed){
     // Check that there is a closing parenthesis
     if (token == CPP_EOF && close_paren_needed){
-        printf("Error: `#pragma ProjetCA mpicoll_check (string[, string]...)` is missing a closing parenthesis\n");
+        fprintf(stderr, "Error: `#pragma ProjetCA mpicoll_check (string[, string]...)` is missing a closing parenthesis\n");
     }
     if (token == CPP_CLOSE_PAREN){
         if(!close_paren_needed){
             // Check that there isn't an unnecessary closing parenthesis
-            printf("Error: `#pragma ProjetCA mpicoll_check string` has an unnecessary closing parenthesis\n");
+            fprintf(stderr, "Error: `#pragma ProjetCA mpicoll_check string` has an unnecessary closing parenthesis\n");
         }
         else{
             // Check that there is nothing after the closing parenthesis
             token = pragma_lex (&x);
             if(token != CPP_EOF){
-                printf("Error: `#pragma ProjetCA mpicoll_check (string[, string]...)` has extra stuff after the closing parenthesis\n");
+                fprintf(stderr, "Error: `#pragma ProjetCA mpicoll_check (string[, string]...)` has extra stuff after the closing parenthesis\n");
             }
         }
     }
@@ -76,20 +76,19 @@ static void handle_pragma_set_functions(cpp_reader *ARG_UNUSED(dummy)){
             int mpi_function_id = get_str_mpi_function(op);
             if(mpi_function_id != -1){
                 if(MONITORED_MPI_COLLECTIVES[mpi_function_id]){
-                    printf("Warning: %s is already monitored.\n", op);
+                    fprintf(stderr, "Warning: %s is already monitored.\n", op);
                 }
                 else{
                     MONITORED_MPI_COLLECTIVES[mpi_function_id] = 1;
-                    printf("added %s to analysed MPI functions.\n", op);
                 }
             }
             else{
-                printf("Warning: %s is not an MPI function.\n", op);
+                fprintf(stderr, "Warning: %s is not an MPI function.\n", op);
             }
             if(! close_paren_needed){
                 token = pragma_lex (&x);
                 if(token != CPP_EOF){
-                    printf("Error: `#pragma ProjetCA mpicoll_check string` has extra stuff after the function\n");
+                    fprintf(stderr, "Error: `#pragma ProjetCA mpicoll_check string` has extra stuff after the function\n");
                 }
                 break;
             }
@@ -103,7 +102,6 @@ static void handle_pragma_set_functions(cpp_reader *ARG_UNUSED(dummy)){
 int
 plugin_init(struct plugin_name_args *plugin_info,
             struct plugin_gcc_version *version) {
-    printf("plugin init\n");
     c_register_pragma("ProjetCA", "mpicoll_check", handle_pragma_set_functions);
     return 0;
 }
