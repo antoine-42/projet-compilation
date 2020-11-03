@@ -3,7 +3,14 @@
 
 #include <mpi.h>
 
+#pragma ProjetCA mpicoll_check f
+#pragma ProjetCA mpicoll_check (f1, f2)
+#pragma ProjetCA mpicoll_check f1, f2
+#pragma ProjetCA mpicoll_check f)
 #pragma ProjetCA mpicoll_check (f1, f2
+#pragma ProjetCA mpicoll_check (f1, f2)f3
+#pragma ProjetCA mpicoll_check MPI_Reduce
+#pragma ProjetCA mpicoll_check (MPI_Init, MPI_Finalize)
 
 int main(int argc, char * argv[])
 {
