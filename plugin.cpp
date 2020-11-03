@@ -1,37 +1,11 @@
 #include "plugin.h"
 
 
-/* Get the current MPI function from a string, or -1 if the function is not an MPI function */
-int get_str_mpi_function(const char* name){
-    for ( int mpi_function = 0; mpi_function < LAST_AND_UNUSED_MPI_COLLECTIVE_CODE; ++mpi_function)
-    {
-        if (strcmp(name,mpi_collective_name[mpi_function]) == 0) {
-            return mpi_function;
-        }
-    }
-    return -1;
-}
-/* Get the MPI function from a stmt, or -1 if the function is not an MPI function */
-int get_stmt_mpi_function(gimple * stmt){
-    tree current_fn_decl = gimple_call_fndecl(stmt);
-    const char* name = get_name(current_fn_decl);
-    return get_str_mpi_function(name);
-}
-
-
 void display_monitored_mpi_functions(){
-    for ( int mpi_function = 0; mpi_function < LAST_AND_UNUSED_MPI_COLLECTIVE_CODE; ++mpi_function)
-    {
-        printf("%s: ", mpi_collective_name[mpi_function]);
-
-        if (MONITORED_MPI_COLLECTIVES[mpi_function]) {
-            printf("monitored");
-        }
-        else {
-            printf("not monitored");
-        }
-
-        printf(".\n");
+    int i;
+    const char* ptr;
+    for (i = 0; MPICOLLECTIVES.iterate (i, &ptr); i++){
+        printf("%s\n", ptr);
     }
 }
 void pragma_set_functions_handle_ending_errors(tree x, enum cpp_ttype token, bool close_paren_needed){
@@ -73,17 +47,11 @@ static void handle_pragma_set_functions(cpp_reader *ARG_UNUSED(dummy)){
     while (token != CPP_EOF && token != CPP_CLOSE_PAREN){
         if (token == CPP_NAME){
             const char *op = IDENTIFIER_POINTER(x);
-            int mpi_function_id = get_str_mpi_function(op);
-            if(mpi_function_id != -1){
-                if(MONITORED_MPI_COLLECTIVES[mpi_function_id]){
-                    fprintf(stderr, "Warning: %s is already monitored.\n", op);
-                }
-                else{
-                    MONITORED_MPI_COLLECTIVES[mpi_function_id] = 1;
-                }
+            if(MPICOLLECTIVES.contains(op)){
+                fprintf(stderr, "Warning: %s is already monitored.\n", op);
             }
             else{
-                fprintf(stderr, "Warning: %s is not an MPI function.\n", op);
+                MPICOLLECTIVES.safe_push(op);
             }
             if(! close_paren_needed){
                 token = pragma_lex (&x);
