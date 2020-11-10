@@ -3,6 +3,9 @@
 
 #include <mpi.h>
 
+#pragma ProjetCA mpicoll_check (mpi_call, main)
+#pragma ProjetCA mpicoll_check mpi_call
+
 void mpi_call(int c)
 {
 	MPI_Barrier(MPI_COMM_WORLD);

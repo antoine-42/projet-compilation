@@ -10,14 +10,10 @@ void mpi_call(int c)
 	if(c<10)
 	{
 		printf("je suis dans le if (c=%d)\n", c);
-		MPI_Barrier(MPI_COMM_WORLD);
-		MPI_Barrier(MPI_COMM_WORLD);
-
 	}
 	else
 	{
 		printf("je suis dans le else (c=%d)\n", c);
-		MPI_Barrier(MPI_COMM_WORLD);
 	}
 }
 
@@ -35,7 +31,7 @@ int main(int argc, char * argv[])
 	{
 
 		mpi_call(c);
-		c+= (a+b);	
+		c+= (a+b);
 	}
 
 	printf("c=%d\n", c);
